@@ -96,6 +96,15 @@ public interface NodeData extends Renderable, Attributable {
      * If no identifier has been set, returns the system integer identifier.
      * @return              the node identifier
      */
+    
+    public void setLeftLabel(String label);
+    
+    public void setRightLabel(String label);
+    
+    public String getLeftLabel();
+    
+    public String getRightLabel();
+    
     public String getId();
 
     /**

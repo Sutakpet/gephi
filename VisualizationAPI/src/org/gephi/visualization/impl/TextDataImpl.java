@@ -43,6 +43,8 @@ package org.gephi.visualization.impl;
 
 import java.awt.Color;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.List;
 import org.gephi.graph.api.TextData;
 
 /**
@@ -69,6 +71,11 @@ public class TextDataImpl implements TextData {
         this.wrappedLines = lines;
     }
 
+    public void setLabelsText(List<String> line) { //ulozeni labelu do textLine
+        this.line = new TextLine(line);
+
+    }
+    
     public void setText(String line) {
         this.line = new TextLine(line, this.line.bounds);
     }
@@ -156,12 +163,17 @@ public class TextDataImpl implements TextData {
 
         String text = "";
         Rectangle2D bounds;
+        List<String> labels = new ArrayList();
 
         public TextLine() {
         }
 
         public TextLine(String text) {
             this.text = text;
+        }
+
+        public TextLine(List<String> text) { //konstruktor pro vytvoreni labelu
+            labels = text;
         }
 
         public TextLine(String text, Rectangle2D bounds) {
@@ -171,6 +183,10 @@ public class TextDataImpl implements TextData {
 
         public String getText() {
             return text;
+        }
+
+        public List<String> getLabels() {//vrati labely
+            return labels;
         }
 
         public void setBounds(Rectangle2D bounds) {

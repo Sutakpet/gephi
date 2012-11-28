@@ -77,6 +77,7 @@ public class VizConfig {
     public static final String SHOW_HULLS = "VizConfig.defaultShowHulls";
     public static final String EDGE_SCALE = "VizConfig.defaultEdgeScale";
     public static final String META_EDGE_SCALE = "VizConfig.defaultMetaEdgeScale";
+    public static final String WRAP_SIZE = "Vizconfig.defaultWrapSize";
     //Const Prefs
     public static final String ANTIALIASING = "VizConfig.antialiasing";
     public static final String BLENDING = "VizConfig.blending";
@@ -162,6 +163,7 @@ public class VizConfig {
     public static final boolean DEFAULT_SHOW_HULLS = true;
     public static final float DEFAULT_EDGE_SCALE = 2f;
     public static final float DEFAULT_META_EDGE_SCALE = 2f;
+    public static final int DEFAULT_WRAP_SIZE = 10;
     //Default config - loaded in the VizModel
     protected boolean defaultUse3d = NbPreferences.forModule(VizConfig.class).getBoolean(USE_3D, DEFAULT_USE_3D);
     protected boolean defaultLighting = false;  //Overriden by use3d
@@ -195,6 +197,7 @@ public class VizConfig {
     protected float defaultEdgeScale = NbPreferences.forModule(VizConfig.class).getFloat(EDGE_SCALE, DEFAULT_EDGE_SCALE);
     protected float defaultMetaEdgeScale = NbPreferences.forModule(VizConfig.class).getFloat(META_EDGE_SCALE, DEFAULT_META_EDGE_SCALE);
     //Preferences
+    protected int wrapSize = NbPreferences.forModule(VizConfig.class).getInt(WRAP_SIZE, DEFAULT_WRAP_SIZE);
     protected int antialiasing = NbPreferences.forModule(VizConfig.class).getInt(ANTIALIASING, DEFAULT_ANTIALIASING);
     protected boolean lineSmooth = false;       //Not useful, GL_LINES
     protected boolean lineSmoothNicest = false;     //Not useful, GL_LINES
@@ -569,5 +572,9 @@ public class VizConfig {
 
     public float getDefaultMetaEdgeScale() {
         return defaultMetaEdgeScale;
+    }
+
+    public int getWrapSize() {
+        return wrapSize;
     }
 }

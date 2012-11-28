@@ -77,6 +77,8 @@ public class ImporterGEXF implements FileImporter, LongTask {
     private static final String NODE = "node";
     private static final String NODE_ID = "id";
     private static final String NODE_LABEL = "label";
+    private static final String NODE_UPPER_LEFT_LABEL = "upper_left_label";
+    private static final String NODE_UPPER_RIGHT_LABEL = "upper_right_label";
     private static final String NODE_PID = "pid";
     private static final String NODE_POSITION = "position";
     private static final String NODE_COLOR = "color";
@@ -125,7 +127,6 @@ public class ImporterGEXF implements FileImporter, LongTask {
                 inputFactory.setProperty("javax.xml.stream.isValidating", Boolean.FALSE);
             }
             inputFactory.setXMLReporter(new XMLReporter() {
-
                 @Override
                 public void report(String message, String errorType, Object relatedInformation, Location location) throws XMLStreamException {
                     System.out.println("Error:" + errorType + ", message : " + message);
@@ -253,6 +254,8 @@ public class ImporterGEXF implements FileImporter, LongTask {
     private void readNode(XMLStreamReader reader, NodeDraft parent) throws Exception {
         String id = "";
         String label = "";
+        String leftLabel="";
+        String rightLabel="";
         String startDate = "";
         String endDate = "";
         String pid = "";
@@ -266,6 +269,10 @@ public class ImporterGEXF implements FileImporter, LongTask {
                 id = reader.getAttributeValue(i);
             } else if (NODE_LABEL.equalsIgnoreCase(attName)) {
                 label = reader.getAttributeValue(i);
+            } else if (NODE_UPPER_LEFT_LABEL.equalsIgnoreCase(attName)) {
+                leftLabel = reader.getAttributeValue(i);
+            } else if (NODE_UPPER_RIGHT_LABEL.equalsIgnoreCase(attName)) {
+                rightLabel = reader.getAttributeValue(i);
             } else if (START.equalsIgnoreCase(attName)) {
                 startDate = reader.getAttributeValue(i);
             } else if (START_OPEN.equalsIgnoreCase(attName)) {
@@ -294,6 +301,8 @@ public class ImporterGEXF implements FileImporter, LongTask {
         }
         node.setId(id);
         node.setLabel(label);
+        node.setLeftLabel(leftLabel);
+        node.setRightLabel(rightLabel);
 
         //Parent
         if (parent != null) {
@@ -438,7 +447,7 @@ public class ImporterGEXF implements FileImporter, LongTask {
         int g = (gStr.isEmpty()) ? 0 : Integer.parseInt(gStr);
         int b = (bStr.isEmpty()) ? 0 : Integer.parseInt(bStr);
         float a = (aStr.isEmpty()) ? 0 : Float.parseFloat(aStr); //not used
-        if(r < 0 || r > 255) {
+        if (r < 0 || r > 255) {
             report.logIssue(new Issue(NbBundle.getMessage(ImporterGEXF.class, "importerGEXF_error_nodecolorvalue", rStr, node, "r"), Issue.Level.WARNING));
         }
         if(g < 0 || g > 255) {

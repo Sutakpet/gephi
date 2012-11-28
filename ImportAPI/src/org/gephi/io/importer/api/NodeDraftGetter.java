@@ -63,6 +63,10 @@ public interface NodeDraftGetter extends NodeDraft {
 
     public String getLabel();
 
+    public String getLeftLabel();
+    
+    public String getRightLabel();
+    
     public float getSize();
 
     public float getX();

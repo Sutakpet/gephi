@@ -41,6 +41,8 @@ Portions Copyrighted 2011 Gephi Consortium.
  */
 package org.gephi.visualization.opengl.text;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.gephi.data.attributes.api.AttributeColumn;
 import org.gephi.data.attributes.api.Estimator;
 import org.gephi.data.attributes.type.DynamicType;
@@ -64,12 +66,9 @@ public class TextDataBuilderImpl {
 
     public void buildNodeText(NodeData nodeData, TextDataImpl textDataImpl, TextModel model, TimeInterval timeInterval) {
         if (model.getNodeTextColumns() != null) {
-            String str = "";
-            int i = 0;
+            List<String> labels = new ArrayList();//ulozeni labelu
             for (AttributeColumn c : model.getNodeTextColumns()) {
-                if (i++ > 0) {
-                    str += " - ";
-                }
+            String str = "";
                 Object val = nodeData.getAttributes().getValue(c.getIndex());
                 if (val instanceof DynamicType) {
                     DynamicType dynamicType = (DynamicType) val;
@@ -84,8 +83,9 @@ public class TextDataBuilderImpl {
                     }
                 }
                 str += val != null ? val : "";
+                labels.add(str);//pokud atribut neni ulozi se prazdny String
             }
-            textDataImpl.setText(str);
+            textDataImpl.setLabelsText(labels);//ulozeni do textDataImpl
         }
     }
 

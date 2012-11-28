@@ -67,6 +67,10 @@ public interface NodeDraft {
 
     public void setLabel(String label);
 
+    public void setLeftLabel(String label);
+    
+    public void setRightLabel(String label);
+    
     public void setSize(float size);
 
     public void setId(String id);

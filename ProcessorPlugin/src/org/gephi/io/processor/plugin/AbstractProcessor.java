@@ -80,7 +80,12 @@ public abstract class AbstractProcessor {
         if (nodeDraft.getLabel() != null) {
             node.getNodeData().setLabel(nodeDraft.getLabel());
         }
-
+        if (nodeDraft.getLeftLabel() != null) {
+            node.getNodeData().setLeftLabel(nodeDraft.getLeftLabel());
+        }
+        if (nodeDraft.getRightLabel() != null) {
+            node.getNodeData().setRightLabel(nodeDraft.getRightLabel());
+        }
         if (node.getNodeData().getTextData() != null) {
             node.getNodeData().getTextData().setVisible(nodeDraft.isLabelVisible());
         }

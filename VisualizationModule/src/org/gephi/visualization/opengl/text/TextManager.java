@@ -47,6 +47,9 @@ import java.awt.Font;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.gephi.data.attributes.api.AttributeColumn;
@@ -126,7 +129,6 @@ public class TextManager implements VizArchitecture {
 
         //Model listening
         model.addChangeListener(new ChangeListener() {
-
             public void stateChanged(ChangeEvent e) {
                 if (!nodeRenderer.getFont().equals(model.getNodeFont())) {
                     nodeRenderer.setFont(model.getNodeFont());
@@ -141,7 +143,6 @@ public class TextManager implements VizArchitecture {
 
         //Model change
         VizController.getInstance().getVizModel().addPropertyChangeListener(new PropertyChangeListener() {
-
             public void propertyChange(PropertyChangeEvent evt) {
                 if (evt.getPropertyName().equals("init")) {
                     TextManager.this.model = VizController.getInstance().getVizModel().getTextModel();
@@ -151,14 +152,16 @@ public class TextManager implements VizArchitecture {
                         AttributeController attributeController = Lookup.getDefault().lookup(AttributeController.class);
                         if (attributeController != null && attributeController.getModel() != null) {
                             AttributeModel attributeModel = attributeController.getModel();
-                            AttributeColumn[] nodeCols = new AttributeColumn[]{attributeModel.getNodeTable().getColumn(PropertiesColumn.NODE_LABEL.getIndex())};
+                            AttributeColumn[] nodeCols = new AttributeColumn[]{attributeModel.getNodeTable().getColumn(PropertiesColumn.NODE_LABEL.getIndex()),
+                                attributeModel.getNodeTable().getColumn(PropertiesColumn.NODE_LEFT_LABEL.getIndex()),
+                                attributeModel.getNodeTable().getColumn(PropertiesColumn.NODE_RIGHT_LABEL.getIndex())};
                             AttributeColumn[] edgeCols = new AttributeColumn[]{attributeModel.getEdgeTable().getColumn(PropertiesColumn.EDGE_LABEL.getIndex())};
                             model.setTextColumns(nodeCols, edgeCols);
                         }
                     }
 
                     DynamicModel dynamicModel = dynamicController.getModel();
-                    if(dynamicModel!=null) {
+                    if (dynamicModel != null) {
                         currentTimeInterval = dynamicModel.getVisibleInterval();
                         builder.setDefaultEstimator(dynamicModel.getEstimator());
                         builder.setNumberEstimator(dynamicModel.getNumberEstimator());
@@ -178,7 +181,6 @@ public class TextManager implements VizArchitecture {
         //Dynamic change
         dynamicController = Lookup.getDefault().lookup(DynamicController.class);
         dynamicController.addModelListener(new DynamicModelListener() {
-
             public void dynamicModelChanged(DynamicModelEvent event) {
                 if(event.getEventType().equals(DynamicModelEvent.EventType.VISIBLE_INTERVAL)) {
                     currentTimeInterval = (TimeInterval) event.getData();
@@ -384,6 +386,7 @@ public class TextManager implements VizArchitecture {
         }
 
         public void drawTextNode(ModelImpl objectModel) {
+            int wrapSize = vizConfig.getWrapSize();//nastaveni poctu znaku pro zalamovani, default je 10
             Renderable renderable = objectModel.getObj();
             TextDataImpl textData = (TextDataImpl) renderable.getTextData();
             if (textData != null) {
@@ -395,15 +398,89 @@ public class TextManager implements VizArchitecture {
                 if (textData.getSizeFactor() * renderer.getCharWidth('a') < PIXEL_LIMIT) {
                     return;
                 }
-                String txt = textData.getLine().getText();
-                Rectangle2D r = renderer.getBounds(txt);
-                float posX = renderable.getModel().getViewportX() + (float) r.getWidth() / -2 * textData.getSizeFactor();
-                float posY = renderable.getModel().getViewportY() + (float) r.getHeight() / -2 * textData.getSizeFactor();
-                r.setRect(0, 0, r.getWidth() / Math.abs(drawable.getDraggingMarkerX()), r.getHeight() / Math.abs(drawable.getDraggingMarkerY()));
-                textData.getLine().setBounds(r);
-
-                renderer.draw3D(txt, posX, posY, 0, textData.getSizeFactor());
+                List<String> txt = textData.getLine().getLabels();//list obsahujici vsechny 3 labely txt.get(0)=label, txt.get(1)=leftLabel, txt.get(2)=rightLabel
+                //vykresleni label
+                if (txt.get(0).compareTo("") != 0) { 
+                    List<String> labelData = splitEqually(txt.get(0), wrapSize); //rozdeleni textu na jednotlive radky
+                    Rectangle2D r = renderer.getBounds(labelData.get(0));
+                    float maxWidth = (float) r.getWidth(); //radek s nejvetsi sirkou
+                    float maxHeight = (float) r.getHeight();//radek s nejvetsi delkou
+                    for (String s : labelData) { //aby bylo zachovano stejne radkovani najdeme nejvetsi sirku a vysku textu
+                        Rectangle2D middleRnew = renderer.getBounds(s);
+                        if (middleRnew.getWidth() > maxWidth) {
+                            maxWidth = (float) middleRnew.getWidth();
+                        }
+                        if (middleRnew.getHeight() > maxHeight) {
+                            maxHeight = (float) middleRnew.getHeight();
+                        }
+                    }
+                    //nastaveni pozice na stred uzlu
+                    float middlePosX = renderable.getModel().getViewportX() + (float) maxWidth / -2 * textData.getSizeFactor();
+                    float middlePosY = renderable.getModel().getViewportY() + (float) maxHeight / -2 * textData.getSizeFactor();
+                    r.setRect(0, 0, maxWidth / Math.abs(drawable.getDraggingMarkerX()), maxHeight / Math.abs(drawable.getDraggingMarkerY()));
+                    int position = 0;//posunuti na dalsi radek
+                    for (String s : labelData) {//vykresleni jednotlivych radku pod sebe
+                        renderer.draw3D(s, middlePosX, middlePosY - position * maxHeight * textData.getSizeFactor(), 0, textData.getSizeFactor());
+                        position++;
+                    }
+                }
+                //vykresleni upperLeftLabel
+                if (txt.get(1).compareTo("") != 0) {
+                    List<String> leftLabelData = splitEqually(txt.get(1), wrapSize);
+                    Collections.reverse(leftLabelData);//zaciname vykreslovat od posledniho radku,protoze nevime jak je text dlouhy
+                    Rectangle2D leftR = renderer.getBounds(leftLabelData.get(leftLabelData.size() - 1));
+                    float maxWidth = (float) leftR.getWidth();
+                    float maxHeight = (float) leftR.getHeight();
+                    for (String s : leftLabelData) {
+                        Rectangle2D leftRnew = renderer.getBounds(s);
+                        if (leftRnew.getWidth() > maxWidth) {
+                            maxWidth = (float) leftRnew.getWidth();
+                        }
+                        if (leftRnew.getHeight() > maxHeight) {
+                            maxHeight = (float) leftRnew.getHeight();
+                        }
+                    }
+                    //nastaveni pozice vlevo nahoru od uzlu
+                    float leftPosX = renderable.getModel().getViewportX() - maxWidth * textData.getSizeFactor() / (float) 1.5 - (float) 9f;
+                    float leftPosY = renderable.getModel().getViewportY();
+                    int position = 1;
+                    for (String s : leftLabelData) {//vykresleni jednotlivych radku nad sebe zaciname tim co je nejblize uzlu, tzn. posledni v textu
+                        renderer.draw3D(s, leftPosX, leftPosY + position * maxHeight * textData.getSizeFactor() / (float) 1.5, 0, textData.getSizeFactor() / (float) 1.5);
+                        position++;
+                    }
+                }
+                //vykresleni upperRightLabel - to same jako upperLeftLabel
+                if (txt.get(2).compareTo("") != 0) {
+                    List<String> rightLabelData = splitEqually(txt.get(2), wrapSize);
+                    Collections.reverse(rightLabelData);
+                    Rectangle2D rightR = renderer.getBounds(rightLabelData.get(rightLabelData.size() - 1));
+                    float maxHeight = (float) rightR.getHeight();
+                    for (String s : rightLabelData) {
+                        Rectangle2D rightRnew = renderer.getBounds(s);
+                        if (rightRnew.getHeight() > rightR.getHeight()) {
+                            maxHeight = (float) rightRnew.getHeight();
+                        }
+                    }
+                    //nastaveni pozice vpravo nahoru od uzlu
+                    float rightPosX = renderable.getModel().getViewportX() + (float) 9f;
+                    float rightPosY = renderable.getModel().getViewportY();
+                    int position = 1;
+                    for (String s : rightLabelData) {
+                        renderer.draw3D(s, rightPosX, rightPosY + position * maxHeight * textData.getSizeFactor() / (float) 1.5, 0, textData.getSizeFactor() / (float) 1.5);
+                        position++;
+                    }
+                }
             }
+        }
+        //rozdeli String na stejne velke substringy
+        public List<String> splitEqually(String text, int size) {
+            List<String> ret = new ArrayList<String>((text.length() + size - 1) / size);
+
+            for (int start = 0; start < text.length(); start += size) {
+                String substr = text.substring(start, Math.min(text.length(), start + size));
+                ret.add(substr);
+            }
+            return ret;
         }
 
         public void drawTextEdge(ModelImpl objectModel) {

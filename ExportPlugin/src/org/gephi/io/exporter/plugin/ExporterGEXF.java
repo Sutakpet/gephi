@@ -97,6 +97,8 @@ public class ExporterGEXF implements GraphExporter, CharacterExporter, LongTask 
     private static final String NODE = "node";
     private static final String NODE_ID = "id";
     private static final String NODE_LABEL = "label";
+    private static final String NODE_UPPER_LEFT_LABEL = "upper_left_label";
+    private static final String NODE_UPPER_RIGHT_LABEL = "upper_right_label";
     private static final String NODE_PID = "pid";
     private static final String NODE_POSITION = "position";
     private static final String NODE_COLOR = "color";
@@ -372,8 +374,15 @@ public class ExporterGEXF implements GraphExporter, CharacterExporter, LongTask 
             xmlWriter.writeAttribute(NODE_ID, id);
             if (node.getNodeData().getLabel() != null && !node.getNodeData().getLabel().isEmpty()) {
                 xmlWriter.writeAttribute(NODE_LABEL, node.getNodeData().getLabel());
-            }
 
+                xmlWriter.writeAttribute(NODE_UPPER_RIGHT_LABEL, node.getNodeData().getRightLabel());
+            }
+            if (node.getNodeData().getLeftLabel() != null && !node.getNodeData().getLeftLabel().isEmpty()) {
+                xmlWriter.writeAttribute(NODE_UPPER_LEFT_LABEL, node.getNodeData().getLeftLabel());
+            }
+            if (node.getNodeData().getRightLabel() != null && !node.getNodeData().getRightLabel().isEmpty()) {
+                xmlWriter.writeAttribute(NODE_UPPER_RIGHT_LABEL, node.getNodeData().getRightLabel());
+            }
             if (exportHierarchy) {
                 Node parent = graph.getParent(node);
                 if (parent != null) {
@@ -576,7 +585,7 @@ public class ExporterGEXF implements GraphExporter, CharacterExporter, LongTask 
             }
 
             AttributeColumn weightCol = attributeModel.getEdgeTable().getColumn(EDGE_WEIGHT);
-            if(weightCol != null && !weightCol.getType().isDynamicType()) {
+            if (weightCol != null && !weightCol.getType().isDynamicType()) {
                 float weight = edge.getWeight();
                 if (weight != 1f) {
                     xmlWriter.writeAttribute(EDGE_WEIGHT, "" + weight);

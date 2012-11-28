@@ -74,6 +74,8 @@ public class NodeDataImpl implements NodeData, GroupData {
     protected Model model;
     protected boolean fixed;
     protected String label;
+    protected String upperLeftLabel;
+    protected String upperRightLabel;
     protected Attributes attributes;
     protected TextData textData;
     protected Model hullModel;
@@ -159,6 +161,7 @@ public class NodeDataImpl implements NodeData, GroupData {
 
     /**
      * Returns size of the node
+     *
      * @return Size of the node
      */
     public float getRadius() {
@@ -273,5 +276,30 @@ public class NodeDataImpl implements NodeData, GroupData {
 
     public void setHullModel(Model hullModel) {
         this.hullModel = hullModel;
+    }
+    
+        public void setLeftLabel(String label) {
+        if (attributes != null) {
+            attributes.setValue(PropertiesColumn.NODE_LEFT_LABEL.getIndex(), label);
+        } else {
+            this.upperLeftLabel = label;
+        }
+    }
+
+    public void setRightLabel(String label) {
+        if (attributes != null) {
+            attributes.setValue(PropertiesColumn.NODE_RIGHT_LABEL.getIndex(), label);
+        } else {
+            this.upperRightLabel = label;
+        }
+    }
+
+
+    public String getLeftLabel() {
+       return upperLeftLabel;
+    }
+
+    public String getRightLabel() {
+        return upperRightLabel;
     }
 }

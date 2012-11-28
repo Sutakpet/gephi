@@ -73,6 +73,8 @@ public class NodeDraftImpl implements NodeDraft, NodeDraftGetter {
     //Basic
     private String id;
     private String label;
+    private String leftLabel;
+    private String rightLabel;
     private NodeDraftImpl[] parents;
     //Viz attributes
     private Color color;
@@ -161,6 +163,16 @@ public class NodeDraftImpl implements NodeDraft, NodeDraftGetter {
 
     public void setLabel(String label) {
         this.label = label;
+        this.createdAuto = false;
+    }
+
+    public void setLeftLabel(String label) {
+        this.leftLabel = label;
+        this.createdAuto = false;
+    }
+
+    public void setRightLabel(String label) {
+        this.rightLabel = label;
         this.createdAuto = false;
     }
 
@@ -386,6 +398,14 @@ public class NodeDraftImpl implements NodeDraft, NodeDraftGetter {
 
     public String getLabel() {
         return label;
+    }
+
+    public String getLeftLabel() {
+        return leftLabel;
+    }
+
+    public String getRightLabel() {
+        return rightLabel;
     }
 
     public float getLabelSize() {

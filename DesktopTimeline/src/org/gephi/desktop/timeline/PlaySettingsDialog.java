@@ -1,43 +1,43 @@
 /*
-Copyright 2008-2011 Gephi
-Authors : Mathieu Bastian
-Website : http://www.gephi.org
+ Copyright 2008-2011 Gephi
+ Authors : Mathieu Bastian
+ Website : http://www.gephi.org
 
-This file is part of Gephi.
+ This file is part of Gephi.
 
-DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-Copyright 2011 Gephi Consortium. All rights reserved.
+ Copyright 2011 Gephi Consortium. All rights reserved.
 
-The contents of this file are subject to the terms of either the GNU
-General Public License Version 3 only ("GPL") or the Common
-Development and Distribution License("CDDL") (collectively, the
-"License"). You may not use this file except in compliance with the
-License. You can obtain a copy of the License at
-http://gephi.org/about/legal/license-notice/
-or /cddl-1.0.txt and /gpl-3.0.txt. See the License for the
-specific language governing permissions and limitations under the
-License.  When distributing the software, include this License Header
-Notice in each file and include the License files at
-/cddl-1.0.txt and /gpl-3.0.txt. If applicable, add the following below the
-License Header, with the fields enclosed by brackets [] replaced by
-your own identifying information:
-"Portions Copyrighted [year] [name of copyright owner]"
+ The contents of this file are subject to the terms of either the GNU
+ General Public License Version 3 only ("GPL") or the Common
+ Development and Distribution License("CDDL") (collectively, the
+ "License"). You may not use this file except in compliance with the
+ License. You can obtain a copy of the License at
+ http://gephi.org/about/legal/license-notice/
+ or /cddl-1.0.txt and /gpl-3.0.txt. See the License for the
+ specific language governing permissions and limitations under the
+ License.  When distributing the software, include this License Header
+ Notice in each file and include the License files at
+ /cddl-1.0.txt and /gpl-3.0.txt. If applicable, add the following below the
+ License Header, with the fields enclosed by brackets [] replaced by
+ your own identifying information:
+ "Portions Copyrighted [year] [name of copyright owner]"
 
-If you wish your version of this file to be governed by only the CDDL
-or only the GPL Version 3, indicate your decision by adding
-"[Contributor] elects to include this software in this distribution
-under the [CDDL or GPL Version 3] license." If you do not indicate a
-single choice of license, a recipient has the option to distribute
-your version of this file under either the CDDL, the GPL Version 3 or
-to extend the choice of license to its licensees as provided above.
-However, if you add GPL Version 3 code and therefore, elected the GPL
-Version 3 license, then the option applies only if the new code is
-made subject to such option by the copyright holder.
+ If you wish your version of this file to be governed by only the CDDL
+ or only the GPL Version 3, indicate your decision by adding
+ "[Contributor] elects to include this software in this distribution
+ under the [CDDL or GPL Version 3] license." If you do not indicate a
+ single choice of license, a recipient has the option to distribute
+ your version of this file under either the CDDL, the GPL Version 3 or
+ to extend the choice of license to its licensees as provided above.
+ However, if you add GPL Version 3 code and therefore, elected the GPL
+ Version 3 license, then the option applies only if the new code is
+ made subject to such option by the copyright holder.
 
-Contributor(s):
+ Contributor(s):
 
-Portions Copyrighted 2011 Gephi Consortium.
+ Portions Copyrighted 2011 Gephi Consortium.
  */
 package org.gephi.desktop.timeline;
 
@@ -65,13 +65,29 @@ public class PlaySettingsDialog extends javax.swing.JPanel {
     public void setup(TimelineModel model) {
         this.model = model;
         this.controller = Lookup.getDefault().lookup(TimelineController.class);
-
         int delay = model.getPlayDelay();
         SpinnerNumberModel delayModel = new SpinnerNumberModel(delay, 10, Integer.MAX_VALUE, 50);
         delaySpinner.setModel(delayModel);
+        double max = controller.getModel().getCustomMax(); //spodni hranice osy
+        double min = controller.getModel().getCustomMin(); //horni hranice osy
+        double interval = max - min; //rozsah osy
+        String measure = model.getMeasure(); //pouzita casova jednotky
+        double step;
+        if (measure.compareTo("s") == 0) { //prepocet relativni velikosti skoku na casovy udaj
+            step = model.getPlayStep() / 1000 * interval;
+            intervalComboBox.setSelectedIndex(0);
+        } else if (measure.compareTo("m") == 0) {
+            step = model.getPlayStep() / 1000 / 60 * interval;
+            intervalComboBox.setSelectedIndex(1);
+        } else if (measure.compareTo("h") == 0) {
+            step = model.getPlayStep() / 1000 / 60 / 60 * interval;
+            intervalComboBox.setSelectedIndex(2);
+        } else {
+            step = model.getPlayStep() / 1000 / 60 / 60 / 24 * interval;
+            intervalComboBox.setSelectedIndex(3);
+        }
 
-        double step = model.getPlayStep() * 100;
-        SpinnerNumberModel stepModel = new SpinnerNumberModel(Math.abs(step), 0.00001, 100, 1);
+        SpinnerNumberModel stepModel = new SpinnerNumberModel(Math.abs(step), 0.00001, Integer.MAX_VALUE, 1);
         stepSizeSpinner.setModel(stepModel);
 
         if (model.getPlayMode().equals(TimelineModel.PlayMode.ONE_BOUND)) {
@@ -83,13 +99,29 @@ public class PlaySettingsDialog extends javax.swing.JPanel {
         if (step < 0) {
             backwardCheckbox.setSelected(true);
         }
+        if (model.getSteppingMode()) { //pokud je mod krokovani
+            steppingCheckbox.setSelected(true);
+        }
     }
 
     public void unsetup() {
-        double step = (Double) stepSizeSpinner.getValue() / 100.0;
+        double max = controller.getModel().getCustomMax();
+        double min = controller.getModel().getCustomMin();
+        double interval = max - min;
+        String measure = (String) intervalComboBox.getSelectedItem();
+        double step;
+        if (measure.compareTo("s") == 0) { //obraceny prepocet z casove jednotky na velikost skoku v procentech
+            step = (Double) stepSizeSpinner.getValue() * 1000 / interval;
+        } else if (measure.compareTo("m") == 0) {
+            step = (Double) stepSizeSpinner.getValue() * 1000 * 60 / interval;
+        } else if (measure.compareTo("h") == 0) {
+            step = (Double) stepSizeSpinner.getValue() * 1000 * 60 * 60 / interval;
+        } else {
+            step = (Double) stepSizeSpinner.getValue() * 1000 * 60 * 60 * 24 / interval;
+        }
+        //double step = (Double) stepSizeSpinner.getValue() / 100.0;
         step = backwardCheckbox.isSelected() ? -step : step;
-        controller.setPlayStep(step);
-
+        controller.setPlayStep(step, measure);//nastaveni velikosti kroku a veliciny ve ktere je udavana
         int delay = (Integer) delaySpinner.getValue();
         controller.setPlaySpeed(delay);
 
@@ -98,12 +130,18 @@ public class PlaySettingsDialog extends javax.swing.JPanel {
         } else {
             controller.setPlayMode(TimelineModel.PlayMode.TWO_BOUNDS);
         }
+
+        if (steppingCheckbox.isSelected()) {//nastaveni krokovaciho modu
+            controller.setSteppingMode(true);
+        } else {
+            controller.setSteppingMode(false);
+        }
     }
 
-    /** This method is called from within the constructor to
-     * initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is
-     * always regenerated by the Form Editor.
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
      */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -117,11 +155,12 @@ public class PlaySettingsDialog extends javax.swing.JPanel {
         labelMs = new javax.swing.JLabel();
         labelStepSize = new javax.swing.JLabel();
         stepSizeSpinner = new javax.swing.JSpinner();
-        labelPerc = new javax.swing.JLabel();
         labelMode = new javax.swing.JLabel();
         oneBoundRadio = new javax.swing.JRadioButton();
         twoBoundsRadio = new javax.swing.JRadioButton();
         backwardCheckbox = new javax.swing.JCheckBox();
+        intervalComboBox = new javax.swing.JComboBox();
+        steppingCheckbox = new javax.swing.JCheckBox();
 
         headerTitle.setDescription(NbBundle.getMessage (TimelineTopComponent.class, "PlaySettingsDialog.headerTitle.description")); // NOI18N
         headerTitle.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/gephi/desktop/timeline/resources/enabled.png"))); // NOI18N
@@ -136,8 +175,6 @@ public class PlaySettingsDialog extends javax.swing.JPanel {
 
         labelStepSize.setText(NbBundle.getMessage (TimelineTopComponent.class, "PlaySettingsDialog.labelStepSize.text")); // NOI18N
 
-        labelPerc.setText(NbBundle.getMessage (TimelineTopComponent.class, "PlaySettingsDialog.labelPerc.text")); // NOI18N
-
         labelMode.setFont(labelMode.getFont().deriveFont(labelMode.getFont().getStyle() | java.awt.Font.BOLD));
         labelMode.setText(NbBundle.getMessage (TimelineTopComponent.class, "PlaySettingsDialog.labelMode.text")); // NOI18N
 
@@ -148,6 +185,10 @@ public class PlaySettingsDialog extends javax.swing.JPanel {
         twoBoundsRadio.setText(NbBundle.getMessage (TimelineTopComponent.class, "PlaySettingsDialog.twoBoundsRadio.text")); // NOI18N
 
         backwardCheckbox.setText(NbBundle.getMessage (TimelineTopComponent.class, "PlaySettingsDialog.backwardCheckbox.text")); // NOI18N
+
+        intervalComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "s", "m", "h", "d" }));
+
+        steppingCheckbox.setText(org.openide.util.NbBundle.getMessage(PlaySettingsDialog.class, "PlaySettingsDialog.steppingCheckbox.text")); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -160,8 +201,11 @@ public class PlaySettingsDialog extends javax.swing.JPanel {
                     .addComponent(labelMode)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(21, 21, 21)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(backwardCheckbox)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(backwardCheckbox)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(steppingCheckbox))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(oneBoundRadio)
                                 .addGap(18, 18, 18)
@@ -179,8 +223,8 @@ public class PlaySettingsDialog extends javax.swing.JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(labelMs)
-                            .addComponent(labelPerc))))
-                .addContainerGap())
+                            .addComponent(intervalComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(191, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -195,9 +239,10 @@ public class PlaySettingsDialog extends javax.swing.JPanel {
                     .addComponent(delaySpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(labelPerc, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(labelStepSize, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(stepSizeSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(stepSizeSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(intervalComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(18, 18, 18)
                 .addComponent(labelMode)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -205,7 +250,9 @@ public class PlaySettingsDialog extends javax.swing.JPanel {
                     .addComponent(oneBoundRadio)
                     .addComponent(twoBoundsRadio))
                 .addGap(18, 18, 18)
-                .addComponent(backwardCheckbox)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(backwardCheckbox)
+                    .addComponent(steppingCheckbox))
                 .addContainerGap(39, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -213,15 +260,16 @@ public class PlaySettingsDialog extends javax.swing.JPanel {
     private javax.swing.JCheckBox backwardCheckbox;
     private javax.swing.JSpinner delaySpinner;
     private org.jdesktop.swingx.JXHeader headerTitle;
+    private javax.swing.JComboBox intervalComboBox;
     private javax.swing.JLabel labelDelay;
     private javax.swing.JLabel labelMode;
     private javax.swing.JLabel labelMs;
-    private javax.swing.JLabel labelPerc;
     private javax.swing.JLabel labelSpeed;
     private javax.swing.JLabel labelStepSize;
     private javax.swing.ButtonGroup modeButtonGroup;
     private javax.swing.JRadioButton oneBoundRadio;
     private javax.swing.JSpinner stepSizeSpinner;
+    private javax.swing.JCheckBox steppingCheckbox;
     private javax.swing.JRadioButton twoBoundsRadio;
     // End of variables declaration//GEN-END:variables
 }

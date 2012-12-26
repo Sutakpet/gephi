@@ -69,7 +69,7 @@ import org.openide.util.NbBundle;
 public class CustomBoundsDialog extends javax.swing.JPanel {
 
     private final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-    private final SimpleDateFormat DATETIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SS");
+    private final SimpleDateFormat DATETIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); //pro zobrazovani vterin
     private TimelineModel model;
     private TimelineController controller;
 

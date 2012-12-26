@@ -88,7 +88,6 @@ public class TimelineControllerImpl implements TimelineController, DynamicModelL
         dynamicController = Lookup.getDefault().lookup(DynamicController.class);
 
         pc.addWorkspaceListener(new WorkspaceListener() {
-
             @Override
             public void initialize(Workspace workspace) {
             }
@@ -293,7 +292,6 @@ public class TimelineControllerImpl implements TimelineController, DynamicModelL
                     throw new IllegalArgumentException("Not a graph column");
                 }
                 Thread thread = new Thread(new Runnable() {
-
                     @Override
                     public void run() {
                         TimelineChart chart = null;
@@ -359,20 +357,18 @@ public class TimelineControllerImpl implements TimelineController, DynamicModelL
         if (model != null && !model.isPlaying()) {
             model.setPlaying(true);
             playExecutor = Executors.newScheduledThreadPool(1, new ThreadFactory() {
-
                 @Override
                 public Thread newThread(Runnable r) {
                     return new Thread(r, "Timeline animator");
                 }
             });
             playExecutor.scheduleAtFixedRate(new Runnable() {
-
                 @Override
                 public void run() {
                     double min = model.getCustomMin();
                     double max = model.getCustomMax();
                     double duration = max - min;
-                    double step = (duration * model.getPlayStep()) * 0.95;
+                    double step = (duration * model.getPlayStep());
                     double from = model.getIntervalStart();
                     double to = model.getIntervalEnd();
                     boolean bothBounds = model.getPlayMode().equals(TimelineModel.PlayMode.TWO_BOUNDS);
@@ -396,12 +392,14 @@ public class TimelineControllerImpl implements TimelineController, DynamicModelL
                             someAction = true;
                         }
                     }
-
                     if (someAction) {
                         from = Math.max(from, min);
                         to = Math.min(to, max);
                         setInterval(from, to);
                     } else {
+                        stopPlay();
+                    }
+                    if (model.getSteppingMode()) {//pri krokovacim modu se po prvnim kroku zastavim
                         stopPlay();
                     }
                 }
@@ -429,9 +427,9 @@ public class TimelineControllerImpl implements TimelineController, DynamicModelL
     }
 
     @Override
-    public void setPlayStep(double step) {
+    public void setPlayStep(double step, String measure) {
         if (model != null) {
-            model.setPlayStep(step);
+            model.setPlayStep(step, measure);
         }
     }
 
@@ -439,6 +437,13 @@ public class TimelineControllerImpl implements TimelineController, DynamicModelL
     public void setPlayMode(PlayMode playMode) {
         if (model != null) {
             model.setPlayMode(playMode);
+        }
+    }
+
+    @Override
+    public void setSteppingMode(boolean enabled) {
+        if (model != null) {
+            model.setSteppingMode(enabled);
         }
     }
 }

@@ -27,9 +27,13 @@
                   <Component id="labelMode" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="21" pref="21" max="21" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="backwardCheckbox" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Group type="102" alignment="0" attributes="0">
+                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                          <Group type="102" attributes="0">
+                              <Component id="backwardCheckbox" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="32767" attributes="0"/>
+                              <Component id="steppingCheckbox" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" attributes="0">
                               <Component id="oneBoundRadio" min="-2" max="-2" attributes="0"/>
                               <EmptySpace type="separate" max="-2" attributes="0"/>
                               <Component id="twoBoundsRadio" min="-2" max="-2" attributes="0"/>
@@ -51,11 +55,11 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="labelMs" min="-2" max="-2" attributes="0"/>
-                          <Component id="labelPerc" min="-2" max="-2" attributes="0"/>
+                          <Component id="intervalComboBox" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
               </Group>
-              <EmptySpace max="32767" attributes="0"/>
+              <EmptySpace pref="191" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -73,9 +77,11 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                  <Component id="labelPerc" min="-2" pref="31" max="-2" attributes="1"/>
                   <Component id="labelStepSize" min="-2" pref="31" max="-2" attributes="1"/>
-                  <Component id="stepSizeSpinner" alignment="0" min="-2" pref="31" max="-2" attributes="1"/>
+                  <Group type="103" alignment="0" groupAlignment="3" attributes="0">
+                      <Component id="stepSizeSpinner" alignment="3" min="-2" pref="31" max="-2" attributes="1"/>
+                      <Component id="intervalComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
               </Group>
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Component id="labelMode" min="-2" max="-2" attributes="0"/>
@@ -85,7 +91,10 @@
                   <Component id="twoBoundsRadio" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace type="separate" max="-2" attributes="0"/>
-              <Component id="backwardCheckbox" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="backwardCheckbox" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="steppingCheckbox" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
               <EmptySpace pref="39" max="32767" attributes="0"/>
           </Group>
       </Group>
@@ -141,13 +150,9 @@
       </Properties>
     </Component>
     <Component class="javax.swing.JSpinner" name="stepSizeSpinner">
-    </Component>
-    <Component class="javax.swing.JLabel" name="labelPerc">
-      <Properties>
-        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/gephi/desktop/timeline/Bundle.properties" key="PlaySettingsDialog.labelPerc.text" replaceFormat="NbBundle.getMessage (TimelineTopComponent.class, &quot;{key}&quot;)"/>
-        </Property>
-      </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JSpinner()"/>
+      </AuxValues>
     </Component>
     <Component class="javax.swing.JLabel" name="labelMode">
       <Properties>
@@ -185,6 +190,25 @@
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="org/gephi/desktop/timeline/Bundle.properties" key="PlaySettingsDialog.backwardCheckbox.text" replaceFormat="NbBundle.getMessage (TimelineTopComponent.class, &quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JComboBox" name="intervalComboBox">
+      <Properties>
+        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+          <StringArray count="4">
+            <StringItem index="0" value="s"/>
+            <StringItem index="1" value="m"/>
+            <StringItem index="2" value="h"/>
+            <StringItem index="3" value="d"/>
+          </StringArray>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JCheckBox" name="steppingCheckbox">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="org/gephi/desktop/timeline/Bundle.properties" key="PlaySettingsDialog.steppingCheckbox.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
     </Component>

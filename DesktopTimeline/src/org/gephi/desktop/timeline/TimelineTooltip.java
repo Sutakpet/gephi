@@ -151,7 +151,7 @@ public class TimelineTooltip {
             DateTime maxDate = new DateTime((long) model.getCustomMax());
             DateTime posDate = new DateTime((long) currentPosition);
 
-            DateTimeFormatter formatter = ISODateTimeFormat.dateTime();
+            DateTimeFormatter formatter = ISODateTimeFormat.dateHourMinuteSecond();//spravne nastaveni vypisu
             min = formatter.print(minDate);
             max = formatter.print(maxDate);
             position = formatter.print(posDate);

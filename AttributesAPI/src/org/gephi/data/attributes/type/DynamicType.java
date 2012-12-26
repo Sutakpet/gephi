@@ -219,6 +219,19 @@ public abstract class DynamicType<T> {
 	public boolean isInRange(Interval interval) {
 		return intervalTree.overlapsWith(interval);
 	}
+        
+        
+        /**
+	 * Indicates if a given time interval starts in interval range.
+	 *
+	 * @param interval a given time interval
+	 *
+	 * @return {@code true} a given time interval starts inside this instance,
+	 *          otherwise {@code false}.
+	 */ 
+        public boolean isInIntervalRange(Interval interval){
+                return intervalTree.isInsideInterval(interval);
+        }
 
 	/**
 	 * Indicates if [{@code low}, {@code high}] interval overlaps with any interval of this instance.
@@ -238,6 +251,26 @@ public abstract class DynamicType<T> {
 						"the right endpoint.");
 
 		return intervalTree.overlapsWith(new Interval(low, high));
+	}
+        
+        /**
+	 * Indicates if [{@code low}, {@code high}] interval is inside of interval of this instance.
+	 *
+	 * @param low  the left endpoint
+	 * @param high the right endpoint
+	 *
+	 * @return {@code true} a given time interval is inside any interval of this
+	 *         instance, otherwise {@code false}.
+	 *
+	 * @throws IllegalArgumentException if {@code low} > {@code high}.
+	 */
+        public boolean isInIntervalRange(double low, double high) {
+		if (low > high)
+			throw new IllegalArgumentException(
+						"The left endpoint of the interval must be less than " +
+						"the right endpoint.");
+
+		return intervalTree.isInsideInterval(new Interval(low, high));
 	}
 
 	/**

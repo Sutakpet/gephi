@@ -549,6 +549,34 @@ public final class IntervalTree<T> {
 	public boolean overlapsWith(Interval interval) {
 		return overlapsWith(root.left, interval);
 	}
+        
+        /**
+	 * Indicates if this {@code IntervalTree} is inside the given time interval.
+	 *
+	 * @param interval a given time interval
+	 *
+	 * @return {@code true} if this {@code IntervalTree} is inside {@code interval},
+	 *         {@code false} otherwise.
+	 */
+        public boolean isInsideInterval(Interval interval){
+                return isInsideInterval(root.left, interval);
+        }
+        
+        private boolean isInsideInterval(Node n, Interval interval){
+            if (n == nil)             //nehledam uzly ktere neexistuji       
+                    return false;
+            if (n.left != nil)        //prohledam leveho potomka
+			if (isInsideInterval(n.left, interval))
+				return true;            
+            if (n.i.getLow()>=interval.getLow() &&n.i.getLow()<=interval.getHigh()){ //pokud uzel vznikne v danem intervalu return true
+                    return true;
+            }
+            if (n.right != nil)
+			if (isInsideInterval(n.right, interval)) // prohledam praveho potomka
+				return true;
+            return false; 
+ 
+        }
 
 	private boolean overlapsWith(Node n, Interval interval) {
 		// Don't search nodes that don't exist.
@@ -559,7 +587,6 @@ public final class IntervalTree<T> {
 		// the given interval.
 		if (interval.getLow() > n.max)
 			return false;
-
 		// Search left children.
 		if (n.left != nil)
 			if (overlapsWith(n.left, interval))

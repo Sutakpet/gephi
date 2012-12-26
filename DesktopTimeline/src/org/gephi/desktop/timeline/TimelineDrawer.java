@@ -153,7 +153,7 @@ public class TimelineDrawer extends JPanel implements MouseListener, MouseMotion
             repaint();
         }
     }
-
+   
     public void setChart(TimelineChart chart) {
         repaint();
     }
